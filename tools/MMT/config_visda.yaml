@@ -67,7 +67,7 @@ TRAIN:
     margin: 0.
 
   # validate
-  val_dataset: 'market1501'
+  val_dataset: 'visda_target'
   val_freq: 5
 
   # sampler
@@ -112,7 +112,7 @@ TRAIN:
 
 TEST:
   # datasets
-  datasets: ['market1501',]
+  datasets: ['visda_target',]
 
   # data loader
   LOADER:
