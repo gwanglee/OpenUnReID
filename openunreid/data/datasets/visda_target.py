@@ -103,7 +103,7 @@ class Visda(ImageDataset):
             with open(idx_path, 'r') as rf:
                 lines = rf.readlines()
 
-        for l in lines():
+        for l in lines:
             cur = l.strip().split(' ')
 
             filename = cur[0]
