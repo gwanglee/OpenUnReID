@@ -5,6 +5,8 @@ from .personx import PersonX
 from .vehicleid import VehicleID
 from .vehiclex import VehicleX
 from .veri import VeRi
+from .personx_spgan import PersonX_Spgan
+from .visda_target import Visda
 
 __all__ = ["build_dataset", "names"]
 
@@ -16,6 +18,8 @@ __factory = {
     "veri": VeRi,
     "vehicleid": VehicleID,
     "vehiclex": VehicleX,
+    "personx_spgan": PersonX_Spgan,
+    "visda_target": Visda,
 }
 
 

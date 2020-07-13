@@ -8,7 +8,7 @@ import warnings
 from ..utils.base_dataset import ImageDataset
 
 
-class PersonX(ImageDataset):
+class PersonX_Spgan(ImageDataset):
     """PersonX
     Reference:
         Sun et al. Dissecting Person Re-identification from the Viewpoint of Viewpoint.
@@ -30,9 +30,9 @@ class PersonX(ImageDataset):
         self.root = osp.abspath(osp.expanduser(root))
         self.dataset_dir = osp.join(self.root, self.dataset_dir)
         self.del_labels = del_labels
-        self.download_dataset(
-            self.dataset_dir, self.dataset_url, dataset_url_gid=self.dataset_url_gid
-        )
+        # self.download_dataset(
+        #     self.dataset_dir, self.dataset_url, dataset_url_gid=self.dataset_url_gid
+        # )
         assert (val_split > 0.0) and (
             val_split < 1.0
         ), "the percentage of val_set should be within (0.0,1.0)"
@@ -50,17 +50,17 @@ class PersonX(ImageDataset):
 
         subsets_cfgs = {
             "train": (
-                osp.join(self.dataset_dir, "bounding_box_train"),
+                osp.join(self.dataset_dir, "image_train"),
                 [0.0, 1.0 - val_split],
                 True,
             ),
             "val": (
-                osp.join(self.dataset_dir, "bounding_box_train"),
+                osp.join(self.dataset_dir, "image_train"),
                 [1.0 - val_split, 1.0],
                 False,
             ),
             "trainval": (
-                osp.join(self.dataset_dir, "bounding_box_train"),
+                osp.join(self.dataset_dir, "image_train"),
                 [0.0, 1.0],
                 True,
             ),
@@ -83,7 +83,7 @@ class PersonX(ImageDataset):
         self.check_before_run(required_files)
 
         data = self.process_dir(*cfgs)
-        super(PersonX, self).__init__(data, mode, **kwargs)
+        super(PersonX_Spgan, self).__init__(data, mode, **kwargs)
 
     def process_dir(self, dir_path, data_range, relabel=False):
         img_paths = glob.glob(osp.join(dir_path, "*.jpg"))

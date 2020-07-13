@@ -8,7 +8,7 @@ import warnings
 from ..utils.base_dataset import ImageDataset
 
 
-class PersonX_Spgan(ImageDataset):
+class Visda(ImageDataset):
     """PersonX
     Reference:
         Sun et al. Dissecting Person Re-identification from the Viewpoint of Viewpoint.
@@ -50,23 +50,23 @@ class PersonX_Spgan(ImageDataset):
 
         subsets_cfgs = {
             "train": (
-                osp.join(self.dataset_dir, "image_train"),
+                osp.join(self.dataset_dir, "target_training/image_train"),
                 [0.0, 1.0 - val_split],
                 True,
             ),
             "val": (
-                osp.join(self.dataset_dir, "image_train"),
+                osp.join(self.dataset_dir, "target_training/image_train"),
                 [1.0 - val_split, 1.0],
                 False,
             ),
             "trainval": (
-                osp.join(self.dataset_dir, "image_train"),
+                osp.join(self.dataset_dir, "target_training/image_train"),
                 [0.0, 1.0],
                 True,
             ),
-            "query": (osp.join(self.dataset_dir, "query"), [0.0, 1.0], False),
+            "query": (osp.join(self.dataset_dir, "target_validation/image_query"), [0.0, 1.0], False),
             "gallery": (
-                osp.join(self.dataset_dir, "bounding_box_test"),
+                osp.join(self.dataset_dir, "target_validation/image_gallery"),
                 [0.0, 1.0],
                 False,
             ),
@@ -83,45 +83,37 @@ class PersonX_Spgan(ImageDataset):
         self.check_before_run(required_files)
 
         data = self.process_dir(*cfgs)
-        super(PersonX_Spgan, self).__init__(data, mode, **kwargs)
+        super(Visda, self).__init__(data, mode, **kwargs)
 
     def process_dir(self, dir_path, data_range, relabel=False):
-        img_paths = glob.glob(osp.join(dir_path, "*.jpg"))
-        pattern = re.compile(r"([\d]+)_c([\d]+)")
-        cam2label = {3: 1, 4: 2, 8: 3, 10: 4, 11: 5, 12: 6}
-
-        pid_container = set()
-        for img_path in img_paths:
-            pid, _ = map(int, pattern.search(img_path).groups())
-            if pid == -1:
-                continue
-            pid_container.add(pid)
-        pid_container = sorted(pid_container)
-
-        # sample identities
-        start_id = int(round(len(pid_container) * data_range[0]))
-        end_id = int(round(len(pid_container) * data_range[1]))
-        pid_container = pid_container[start_id:end_id]
-        assert len(pid_container) > 0
-
-        pid2label = {pid: label for label, pid in enumerate(pid_container)}
 
         data = []
-        for img_path in img_paths:
-            pid, camid = map(int, pattern.search(img_path).groups())
-            if (pid not in pid_container) or (pid == -1):
-                continue
 
-            assert camid in cam2label.keys()
-            camid = cam2label[camid]
-            camid -= 1
+        if 'validation' in dir_path:
+            pardir = osp.dirname(dir_path)
+            idx_path = osp.join(pardir, 'index_validation_query') if ('query' in dir_path) \
+                    else osp.join(pardir, 'index_validation_gallery')
 
-            if not self.del_labels:
-                if relabel:
-                    pid = pid2label[pid]
-                data.append((img_path, pid, camid))
-            else:
-                # use 0 as labels for all images
-                data.append((img_path, 0, camid))
+            with open(idx_path, 'r') as rf:
+                lines = rf.readlines()
+        else:
+            pardir = osp.dirname(dir_path)
+            idx_path = osp.join(pardir, 'label_target_training.txt')
+
+            with open(idx_path, 'r') as rf:
+                lines = rf.readlines()
+
+        for l in lines():
+            cur = l.strip().split(' ')
+
+            filename = cur[0]
+            cid = int(cur[1])
+            pid = int(cur[2]) if len(cur) > 3 else 0
+
+            data.append((osp.join(dir_path, filename), pid, cid))
+
+        print(dir_path)
+        for d in data[:3]:
+            print(d)
 
         return data
