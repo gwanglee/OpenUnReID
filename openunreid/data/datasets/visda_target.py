@@ -20,7 +20,7 @@ class Visda(ImageDataset):
     # images: 9840 (train) + 5136 (query) + 30816 (gallery)
     """
 
-    dataset_dir = "personx"
+    dataset_dir = "challenge_datasets"
     dataset_url = (
         "https://drive.google.com/file/d/1hiHoDt3u7_GfeICMdEBt2Of8vXr1RF-U/view"
     )
